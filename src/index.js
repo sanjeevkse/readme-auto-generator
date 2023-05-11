@@ -4,11 +4,12 @@ const estraverse = require("estraverse");
 const readFiles = require("./readFiles");
 const parseFile = require("./parseFile");
 const traverse = require("./traverse");
+const config = require("./config");
 
-let files = readFiles(__dirname + "/../src/");
+let files = readFiles(config.folderPath);
 
 files = files.filter((file) => {
-  return file.includes("index.js");
+  return file.includes(config.include);
 });
 
 // Parse each file and extract code snippets
@@ -24,7 +25,6 @@ codeSnippets.map((cs) => {
   estraverse.traverse(cs, {
     enter(node, parent) {
       if (node.type === "Program") {
-        console.log("node.comments", node.comments[0]);
         let functionDeclartionComments = node.comments[0].value.split("\n");
         let functionName,
           functionDescription,
@@ -114,7 +114,7 @@ codeSnippets.map((cs) => {
 
 // return false;
 
-const readmeFile = fs.readFileSync(__dirname + "/../README.md", "utf8");
+const readmeFile = fs.readFileSync(config.outputFile, "utf8");
 const readmeLines = readmeFile.split("\n");
 const readmeStart = readmeLines.indexOf("[//]: START GENERATED CODE");
 const readmeEnd = readmeLines.indexOf("[//]: END GENERATED CODE");
@@ -128,4 +128,4 @@ const newReadme = readmeLines.join("\n");
 
 // const newReadme = readmeStartPart + readMe + readmeEndPart;
 
-fs.writeFileSync(__dirname + "/../README.md", newReadme, "utf8");
+fs.writeFileSync(config.outputFile, newReadme, "utf8");
